@@ -2,13 +2,38 @@
 
 ## 开发工具和运行环境
 
------------------------
-操作系统 | Ubuntu 14.04
-数据库 | SQLite
-Web服务器 | Webrick
-开发框架 | Rails 4.1.5
-开发语言 | Ruby 2.?
-文本编辑器 | Sublime Text 3
+<table>
+    <tr>
+        <td>操作系统</td>
+        <td>Ubuntu 14.04</td>
+    </tr>
+
+    <tr>
+        <td>数据库</td>
+        <td>SQLite</td>
+    </tr>
+
+    <tr>
+        <td>Web服务器</td>
+        <td>Webrick</td>
+    </tr>
+
+    <tr>
+        <td>开发框架</td>
+        <td>Rails 4.1.6</td>
+    </tr>
+
+    <tr>
+        <td>开发语言</td>
+        <td>Ruby 2.1.2p95</td>
+    </tr>
+
+    <tr>
+        <td>文本编辑器</td>
+        <td>Sublime Text 3</td>
+    </tr>
+
+</table>
 
 ## 系统实现的相关技术
 
