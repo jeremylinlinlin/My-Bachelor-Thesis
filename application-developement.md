@@ -2,36 +2,37 @@
 
 ## 开发工具和运行环境
 <table>
-    <tr>
-        <td>操作系统</td>
-        <td>Ubuntu 14.04</td>
-    </tr>
+    <tbody>
+        <tr>
+            <td>操作系统</td>
+            <td>Ubuntu 14.04</td>
+        </tr>
 
-    <tr>
-        <td>数据库</td>
-        <td>SQLite</td>
-    </tr>
+        <tr>
+            <td>数据库</td>
+            <td>SQLite</td>
+        </tr>
 
-    <tr>
-        <td>Web服务器</td>
-        <td>Webrick</td>
-    </tr>
+        <tr>
+            <td>Web服务器</td>
+            <td>Webrick</td>
+        </tr>
 
-    <tr>
-        <td>开发框架</td>
-        <td>Rails 4.1.5</td>
-    </tr>
+        <tr>
+            <td>开发框架</td>
+            <td>Rails 4.1.5</td>
+        </tr>
 
-    <tr>
-        <td>开发语言</td>
-        <td>Ruby 2.?</td>
-    </tr>
+        <tr>
+            <td>开发语言</td>
+            <td>Ruby 2.?</td>
+        </tr>
 
-    <tr>
-        <td>文本编辑器</td>
-        <td>Sublime Text 3</td>
-    </tr>
-
+        <tr>
+            <td>文本编辑器</td>
+            <td>Sublime Text 3</td>
+        </tr>
+    </tbody>
 </table>
 
 ## 系统实现的相关技术
@@ -39,29 +40,29 @@
 ### [Ruby语言](http://www.w3cschool.cc/ruby/ruby-intro.html)
 
 Ruby是一种纯粹的面向对象编程语言。
-它由日本的松本行弘（まつもとゆきひろ/Yukihiro Matsumoto）创建于1993年。
-Ruby 的特性与 Smalltalk、Perl 和 Python 类似。
-Perl、Python 和 Smalltalk 是脚本语言。
-Smalltalk 是一个真正的面向对象语言。
-Ruby，与 Smalltalk 一样，是一个完美的面向对象语言。
-使用 Ruby 的语法比使用 Smalltalk 的语法要容易得多。
+它由日本的松本行弘（まつもとゆきひろ/YukihiroMatsumoto）创建于1993年。
+Ruby的特性与Smalltalk、Perl和Python类似。
+Perl、Python和Smalltalk是脚本语言。
+Smalltalk是一个真正的面向对象语言。
+Ruby，与Smalltalk一样，是一个完美的面向对象语言。
+使用Ruby的语法比使用Smalltalk的语法要容易得多。
 
 Ruby的特性：
 
-* Ruby 是开源的，在 Web 上免费提供，但需要一个许可证。
-* Ruby 是一种通用的、解释的编程语言。
-* Ruby 是一种真正的面向对象编程语言。
-* Ruby 是一种类似于 Python 和 Perl 的服务器端脚本语言。
-* Ruby 可以用来编写通用网关接口（CGI）脚本。
-* Ruby 可以被嵌入到超文本标记语言（HTML）。
-* Ruby 语法简单，这使得新的开发人员能够快速轻松地学习 Ruby。
-* Ruby 与 C++ 和 Perl 等许多编程语言有着类似的语法。
-* Ruby 可扩展性强，用 Ruby 编写的大程序易于维护。
-* Ruby 可用于开发的 Internet 和 Intranet 应用程序。
-* Ruby 可以安装在 Windows 和 POSIX 环境中。
-* Ruby 支持许多 GUI 工具，比如 Tcl/Tk、GTK 和 OpenGL。
-* Ruby 可以很容易地连接到 DB2、MySQL、Oracle 和 Sybase。
-* Ruby 有丰富的内置函数，可以直接在 Ruby 脚本中使用。
+* Ruby是开源的，在Web上免费提供，但需要一个许可证。
+* Ruby是一种通用的、解释的编程语言。
+* Ruby是一种真正的面向对象编程语言。
+* Ruby是一种类似于Python和Perl的服务器端脚本语言。
+* Ruby可以用来编写通用网关接口（CGI）脚本。
+* Ruby可以被嵌入到超文本标记语言（HTML）。
+* Ruby语法简单，这使得新的开发人员能够快速轻松地学习Ruby。
+* Ruby与C++和Perl等许多编程语言有着类似的语法。
+* Ruby可扩展性强，用Ruby编写的大程序易于维护。
+* Ruby可用于开发的Internet和Intranet应用程序。
+* Ruby可以安装在Windows和POSIX环境中。
+* Ruby支持许多GUI工具，比如Tcl/Tk、GTK和OpenGL。
+* Ruby可以很容易地连接到DB2、MySQL、Oracle和Sybase。
+* Ruby有丰富的内置函数，可以直接在Ruby脚本中使用。
 
 
 ### [Ruby on Rails (Rails)框架](http://zh.wikipedia.org/wiki/Ruby_on_Rails)
@@ -81,16 +82,16 @@ Sass 是一种基于ruby编写的CSS预处理器。
 
 jQuery是一套跨浏览器的JavaScript库，简化HTML与JavaScript之间的操作。
 由John Resig在2006年1月的BarCamp NYC上发布第一个版本。
-目前是由 Dave Methvin 领导的开发团队进行开发。
+目前是由Dave Methvin领导的开发团队进行开发。
 全球前10000个访问最高的网站中，有65%使用了jQuery，是目前最受欢迎的JavaScript库。<br />
 
-jQuery 是开源软件，使用MIT许可证授权。[4] jQuery的语法设计使得许多操作变得容易，如操作文档对象（document）、选择DOM元素、创建动画效果、处理事件、以及开发Ajax程序。jQuery 也提供了给开发人员在其上创建插件的能力。这使开发人员可以对底层交互与动画、高级效果和高级主题化的组件进行抽象化。模块化的方式使 jQuery 函数库能够创建功能强大的动态网页以及网络应用程序。
+jQuery是开源软件，使用MIT许可证授权。jQuery的语法设计使得许多操作变得容易，如操作文档对象（document）、选择DOM元素、创建动画效果、处理事件、以及开发Ajax程序。jQuery也提供了给开发人员在其上创建插件的能力。这使开发人员可以对底层交互与动画、高级效果和高级主题化的组件进行抽象化。模块化的方式使jQuery函数库能够创建功能强大的动态网页以及网络应用程序。
 
 ### [AJAX](http://zh.wikipedia.org/wiki/AJAX)
 
 #### AJAX简介
 
-Ajax即“Asynchronous JavaScript and XML”（异步的JavaScript与XML技术），指的是一套综合了多项技术的浏览器端网页开发技术。Ajax的概念由Jesse James Garrett所提出[1]。<br />
+Ajax即“Asynchronous JavaScript and XML”（异步的JavaScript与XML技术），指的是一套综合了多项技术的浏览器端网页开发技术。Ajax的概念由Jesse James Garrett所提出。<br />
 
 传统的Web应用允许用户端填写表单（form），当提交表单时就向Web服务器发送一个请求。
 服务器接收并处理传来的表单，然后送回一个新的网页，但这个做法浪费了许多带宽，因为在前后两个页面中的大部分HTML码往往是相同的。
