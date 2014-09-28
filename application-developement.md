@@ -208,5 +208,90 @@ Git版本控制的主要功能由此实现，即自从首次提交(Initial Commi
 本系统的[GitHub主页](https://github.com/jeremylinlin/online-bookstore)中，在任何分支里都可查看到该分支中每一个源码文件最新版本所对应的最近一次版本提交信息。（若某文件在某次版本提交中未被修改则不会被提交）
 ![Commit Messages](commit-messages.jpg)
 
-## 云应用部署平台Heroku
+## 云应用部署平台Heroku[DONE]
+
+### [Heroku简介](http://baike.baidu.com/view/4931959.htm?fr=aladdin)
+Heroku是一个支持多种编程语言的[云平台即服务](http://baike.baidu.com/view/1734078.htm)。
+在2010年被 Salesforce.com 收购。
+Heroku作为最开始的云平台之一，从2007年6月起开发，当时它仅支持Ruby，但后来增加了对Java、Node.js、Scala、Clojure、Python以及（未记录在正式文件上）PHP和Perl的支持。<br />
+Heroku 最受人喜爱的地方之一，就是它提供免费额度：
+网站空间部分，每个项目的限制是100MB，这对于一般的小型的项目来说已经足够了;
+而对于数据库，每个项目的大小限制则是5MB，而且有 SQLite、MySQL、PostgreSQL 可以选用。
+
+
+### [搭建 Heroku 部署环境](http://railstutorial-china.org/chapter1.html#section-1-4-1)
+
+Heroku 让 Rails 应用程序的部署变得异常简单，只要把源码纳入了 Git 版本控制系统就行了。
+在本系统中，要成功使用 Heorku 对源代码进行部署前，需要进行一些简单的配置（注册账户等在此省略）。<br />
+由于 Heroku 使用 PostgreSQL数据库，所以我们要把 pg 加入生产组，Rails 才能和 PostgreSQL 通信：
+
+    group :production do
+      gem 'pg', '0.15.1'
+    end
+同时使 sqlite3 仅适用于开发组和测试组，
+
+    group :development, :test do  
+      gem 'sqlite3'  
+    end 
+随后执行 bundle install，并指定旗标：
+
+    $ bundle install --without production
+之后还要做一些设置来生成 Heroku 服务静态资源所需的文件，例如图片和 CSS。
+首先要确保 config/environments/production.rb 中
+
+    config.serve_static_assets = true
+之后执行
+
+    heroku run rake assets:precompile
+至此，Heroku部署Rails的初始配置全部完成，最后只需提交更改，如：
+
+    git commit -m "Finish setting up Heroku"
+
+即可通过
+
+    git push heroku 分支名
+
+来上传源代码至Heroku。
+
+### Heroku 其他命令
+
+在配置完 Heroku 之后我们将主要使用 git push heroku 来上传代码，但还有另一些与 Heroku 相关的命令值得一提：
+
+1. 在本地 Rails 服务器中我们通过
+
+        rails server
+或
+
+        rails s
+启动服务器的同时即可看见命令窗口中的即时服务器运行日志。
+而要查看 Heroku 平台上的应用的即时日志信息，则可通过
+
+    heroku logs --tail
+而
+
+    heroku logs -n 50
+则表示显示当前 Heroku 应用最新运行日志的最后50行。
+2. 在本地 Rails 中我们通过
+
+        rake db:migrate
+来将所有未实施的迁移任务实施到目标数据库上。而在 Heroku 平台上，我们则通过
+
+        heroku rake db:migrate
+进行远程数据库的数据迁移任务。
+3. 在本地 Rails 中我们通过
+
+        rails console
+或
+
+        rails c
+进入 Rails 控制台。
+而我们同时可以通过
+
+        heroku run rails console
+或
+
+        heroku run rails c
+
+直接进入远程服务器的 rails 控制台。
+
 ## 系统展示
