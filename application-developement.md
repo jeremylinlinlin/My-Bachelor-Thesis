@@ -47,7 +47,7 @@ Smalltalk是一个真正的面向对象语言。
 Ruby，与Smalltalk一样，是一个完美的面向对象语言。
 使用Ruby的语法比使用Smalltalk的语法要容易得多。
 
-Ruby的特性：
+Ruby的特性. 
 
 * Ruby是开源的，在Web上免费提供，但需要一个许可证。
 * Ruby是一种通用的、解释的编程语言。
@@ -126,6 +126,73 @@ Rails提供了一些Helper，可以在服务器一端用纯Ruby语言生成给�
 ### 多国语言模块
 
 ## 版本控制系统Git
+
+### Git简介
+
+Git是一个开源的分布式版本控制系统，用以有效、高速的处理从很小到非常大的项目版本管理。
+
+从一般开发者的角度来看，git有以下功能。
+
+1. 从服务器上克隆数据库（包括代码和版本信息）到单机上。
+2. 在自己的机器上创建分支，修改代码。
+3. 在单机上自己创建的分支上提交代码。
+4. 在单机上合并分支。
+5. 新建一个分支，把服务器上最新版的代码fetch下来，然后跟自己的主分支合并。
+6. 生成补丁（patch），把补丁发送给主开发者。
+7. 看主开发者的反馈，如果主开发者发现两个一般开发者之间有冲突（他们之间可以合作解决的冲突），就会要求他们先解决冲突，然后再由其中一个人提交。如果主开发者可以自己解决，或者没有冲突，就通过。
+8. 一般开发者之间解决冲突的方法，开发者之间可以使用pull 命令解决冲突，解决完冲突之后再向主开发者提交补丁。
+
+### [Git主要命令介绍](http://blog.csdn.net/hangyuanbiyesheng/article/details/6731629)
+
+* git init : 初始化当前目录为Git版本控制的目录,在当前目录中产生一个.git 的子目录。
+以后，所有的文件变化信息都会保存到这个目录下。
+* git commit : 提交当前工作目录的修改内容。
+直接调用git commit命令，会提示填写注释。
+通过如下方式在命令行就填写提交注释：git commit -m "这里填写注释"。
+git commit还有一个-a的参数，可以将那些没有通过git add标识的变化一并强行提交。
+如需同时使用-a和-m参数可直接使用-am。
+* git status : 查看版本库的状态。
+可以得知哪些文件发生了变化，
+哪些文件还没有添加到git库中等等。 
+建议每次commit前都要通过该命令确认库状态。
+* git branch ： 列出本地git库中的所有分支。
+在列出的分支中，若分支名前有*，则表示此分支为当前分支。
+在git版本库中创建分支的成本几乎为零，所以，不必吝啬多创建几个分支。
+当第一次执行git init时，系统就会创建一个名为“master”的分支。
+而其它分支则通过手工创建。
+* git checkout 分支名 : 切换到某个分支。（只有当前工作分支的更改全部通过git commit提交后才可允许切换分支）
+* git checout -b 分支名 : 创建该分支名同时将当前工作分支切换到了该分支上。 
+* git merge : 把服务器上下载下来的代码和本地代码合并，或者进行分支合并。
+* git push origin branch-name ： 提交本地分支branch-name至在线版本库
+（origin只相当于一个别名，运行git remote –v或者查看.git/config可以看到origin的含义，一般指git版本库，如需将代码部署至Heroku则需将origin改为heroku)，
+只有当前工作分支的更改全部通过git commit提交后才可使用git push命令。
+* git log : 查看历史日志，包含每次的版本变化。每次版本变化对应一个commit id。 
+
+### 本系统运用Git进行版本控制的主要流程
+![Git flowchart](git-flowchart.jpg) // Lacks the branch part
+### GitHub简介
+
+[GitHub](http://zh.wikipedia.org/wiki/GitHub#.E4.B8.AD.E5.9B.BD.E5.A4.A7.E9.99.86)是目前最流行的Git访问站点，它是一个共享虚拟主机服务，用于存放使用Git版本控制的软件代码和内容项目。
+GitHub同时提供付费账户和为开源项目提供的免费账户。
+许多赫赫有名的程序库、开发框架都采用GitHub作为为主版本控制平台，其中包括[jQuery](https://github.com/jquery/jquery
+), [PHP](https://github.com/php
+), 以及本系统使用的开发语言[Ruby](https://github.com/ruby/ruby
+)和开发框架[Rails](https://github.com/rails/rails/
+)。
+
+### Git在本系统中的运用
+
+#### 分支(branch)
+
+本系统中的[所有代码](https://github.com/jeremylinlin/online-bookstore)利用GitHub提供的免费账户进行代码托管，其中包含若干个分支(branch)和一个主分支(master)。
+一般说来，一个分支通常被用来完成某种特定的功能，当此分支的功能被完成后则会被合并(merge)至master分支。
+在开源项目中，分支往往用来被多个开发者新建用来完成不同的功能。
+在本系统中，分支主要被用来区分开发的不同阶段。
+
+#### 提交（commit）
+
+
+
 
 ## 云应用部署平台Heroku
 
