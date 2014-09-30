@@ -222,7 +222,7 @@ Devise 是 Ruby on Rails 中最常用的 gem 之一。
 
     <% if user_signed_in? %>
         Signed in as <%= current_user.email %>. Not you? 
-    <%= link_to "Sign out", destroy_user_session_path, method: :delete %>
+        <%= link_to "Sign out", destroy_user_session_path, method: :delete %>
     <% else %>
         <%= link_to "Sign up", new_user_registration_path %> or <%= link_to "Sign in", user_session_path %>
     <% end %>
@@ -238,6 +238,43 @@ Devise 是 Ruby on Rails 中最常用的 gem 之一。
 至此，普通用户的注册于登录模块已基本完成。
 
 ### 权限管理模块
+
+[CanCan](https://github.com/ryanb/cancan) 是最流行的在 Rails 应用中进行权限管理的 gem 。
+它负责角色建立、对角色授权、在页面中根据授权是否显示元素，以及模型中超出授权时抛出异常。
+所有的权限都在单文件 ability.rb 中设定。
+然而， CanCan 的原作者 [Ryan Bates](https://github.com/ryanb)在去年9月就对该项目停止了更新，使得该项目中的部分特性不能支持之后推出的 Rails 4 。
+于是， CanCan 社区的开发者们为了该项目的延续，自发对其进行更新（开源精神），并取名为 [CanCanCan](https://github.com/CanCanCommunity/cancancan) ，使其完美支持至今为止的所有 Rails 版本。
+
+同样，我们首先把这个 gem 包含入 Gemfile 中
+
+    gem 'cancancan'
+
+之后，根据 CanCanCan GitHub主页的 README ，我们使用以下命令生成设定权限的 ability.rb
+
+    rails g cancan:ability
+
+在这个文件中定义不同角色的用户权限
+
+    def initialize(user)
+        user ||= User.new
+        if user.admin?
+            can :manage, :all
+        else
+            can :manage, Order
+            can :read, Category
+            can :read, Product
+        end
+    end
+代码中，:manage 和 :all 分别表示 CRUD 中所有的动作，和系统中的所有模型。
+也即：若用户为管理员，则他将拥有对所有模型的所有动作的操作权。
+而对于非管理员用户，他们只能拥有对于商品、分类的读取权限以及（自己的）订单的控制权限。
+
+最后要将以上权限设定应用到各个模型中，只需在该模型控制器文件中添加一行
+    
+    load_and_authorize_resource 
+
+即可在该控制器的任意行为被触发之前通过 before_action 回调函数来验证用户对于该动作的权限。
+
 ### 购物车模块
 ### 订单模块
 ### 邮件发送模块
