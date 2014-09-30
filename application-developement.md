@@ -157,7 +157,7 @@ Gemfile 的写法大致如下：
 
 ![Gems needed for the app](gems.jpg)
 
-在设定好 Gemfile 之后，我们主要用到一下指令：
+在设定好 Gemfile 之后，我们主要用到以下指令：
 
 * bundle install : 安装所有需要的套件。
 如果修改了 Gemfile ，就应执行bundle install，这样 Bundler 就会检查并安装这些 gems ，并产生一个Gemfile.lock 文件。 
@@ -169,7 +169,74 @@ Gemfile.lock 文件会详细列出所有使用到的 RubyGems 的版本，
 一般来说只需要在每次修改 Gemfile 后，执行 bundle install 即可。
 如果 gem 之间有依赖性问题 bundle install 无法解决，则会提示执行 bundle update 。
 
-### 用户注册模块
+### 用户注册登录模块
+
+Devise 是 Ruby on Rails 中最常用的 gem 之一。
+它是一个第三方权限认证组件，它为 Rails 程序提供了一套易用的用户认证方案，通过它可以无需编码在几分钟内快速生成一个带有登陆、注册、权限认证和重置密码的用户认证模块。
+
+为使用这个 gem ，我们首先将
+
+    gem 'devise'
+添加入 Gemfile ，执行 bundle install 后，需要安装 devise 到系统，对 devise 执行初始化：
+
+    rails generate devise:install
+之后执行
+
+    rails g devise User 
+    // 在 Rails 命令中，generate 可直接简写为，类似的有 rails sever 简写为 rails s ; rails console 简写为 rails c ; destroy 简写为 d 等
+该命令会
+* 在 app/models 文件夹下产生了一个 user.rb ，也就是创建了一个用户模型
+* 在 db/migrate 文件夹下产生了一个 migration 文件, 用于数据库的迁移
+* 在 config/routes.rb 文件中添加了一行 devise_for :users，这一行代码添加了各种用户注册、登录等的默认路径。
+
+之后我们执行
+
+    rake db:migrate
+生成 User 数据表。
+此时，我们进入 http://localhost:3000/users/sign_up 和 http://localhost:3000/users/sign_up ，发现已经实现了用户注册和用户登录功能了。
+
+![user_signup](user_signup.png)
+![user_signin](user_signin.png)
+
+另外 devise 还提供了一些控制器的 filters 和帮助方法 (helper) 。
+
+若在触发某控制器的某个或所有动作之前需要验证用户是否登录，我们可以调用回调函数
+
+    before_action :authenticate_user!
+
+如果用户在未登录状态下触发了该控制器页面则会自动跳转到登录页面。
+
+* 若我们需要验证用户是否登录，可使用
+
+        user_signed_in?
+
+* 若要指向当前登录用户，可使用
+
+        current_user
+
+接着我们利用 rake routes 来查看 devise 这个 gem 为我们生成的所有控制器和动作 (action) 。
+
+![devise_rake_routes](devise_rake_routes.png)
+
+这些信息足以让我们能在任意页面创建用户登录和注册的链接了
+
+    <% if user_signed_in? %>
+        Signed in as <%= current_user.email %>. Not you? 
+    <%= link_to "Sign out", destroy_user_session_path, method: :delete %>
+    <% else %>
+        <%= link_to "Sign up", new_user_registration_path %> or <%= link_to "Sign in", user_session_path %>
+    <% end %>
+
+在应用全局模板文件 /online-store/app/views/layouts/application.html.erb 内插入以上代码并刷新页面，可以发现用户登录和注册链接已经被创建
+
+![sign in and up links](sign_in_and_up_links.png)
+
+登录后则显示
+
+![signed_in_link](signed_in_link.png)
+
+至此，普通用户的注册于登录模块已基本完成。
+
 ### 权限管理模块
 ### 购物车模块
 ### 订单模块
