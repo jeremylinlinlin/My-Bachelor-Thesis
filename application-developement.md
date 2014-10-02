@@ -2,38 +2,60 @@
 
 ## 开发工具和运行环境[DONE]
 
-<table>
-    <tr>
-        <td>操作系统</td>
-        <td>Ubuntu 14.04</td>
-    </tr>
 
-    <tr>
-        <td>数据库</td>
-        <td>SQLite</td>
-    </tr>
+----------------     ------------------------
+    操作系统                Ubuntu 14.04
 
-    <tr>
-        <td>Web服务器</td>
-        <td>Webrick</td>
-    </tr>
+    数据库                   SQLite
 
-    <tr>
-        <td>开发框架</td>
-        <td>Rails 4.1.5</td>
-    </tr>
+    Web服务器               Webrick
 
-    <tr>
-        <td>开发语言</td>
-        <td>Ruby 2.1.2p95</td>
-    </tr>
+    开发框架                Rails 4.1.5
 
-    <tr>
-        <td>文本编辑器</td>
-        <td>Sublime Text 3</td>
-    </tr>
+    开发语言                Ruby 2.1.2p95
 
-</table>
+    文本编辑器              Sublime Text 3
+----------------     -----------------------
+
+Table: 开发工具和运行环境
+
+## Rails 简介与其特性介绍
+
+### Rails 是什么？
+
+Rails 是使用 Ruby 语言编写的网页程序开发框架，目的是为开发者提供常用组件，简化网页程序的开发。
+只需编写较少的代码，就能实现其他编程语言或框架难以企及的功能。
+经验丰富的 Rails 程序员会发现，Rails 让程序开发变得更有乐趣。
+
+Rails 有自己的一套规则，认为问题总有最好的解决方法，而且建议使用最好的方法，有些情况下甚至不推荐使用其他替代方案。
+学会如何按照 Rails 的思维开发，能极大提高开发效率。
+如果坚持在 Rails 开发中使用其他语言中的旧思想，尝试使用别处学来的编程模式，开发过程就不那么有趣了。
+
+Rails 哲学包含两大指导思想：
+
+* **不要自我重复（DRY, Don't Repeat Yourself）：**
+DRY 是软件开发中的一个原则，“系统中的每个功能都要具有单一、准确、可信的实现。”。
+不重复表述同一件事，写出的代码才能更易维护，更具扩展性，也更不容易出问题。
+* **多约定，少配置：**
+Rails 为网页程序的大多数需求都提供了最好的解决方法，而且默认使用这些约定，不用在长长的配置文件中设置每个细节。
+
+### Rails 脚手架 (Rails Scaffolding)
+
+脚手架是一种被许多基于 MVC 框架应用的技术。
+在 Rails 中，开发者可以通过 generate 命令生成大量的代码并获得一个具有全部 CRUD 动作的 MVC 结构。
+
+### [Rails 中的 HTTP 请求](file:///home/jeremy/Documents/Ruby%20on%20Rails/Single%20Page%20%20%20Ruby%20on%20Rails%20Tutoridal%20%20%20Softcover.io_files/Single%20Page%20%20%20Ruby%20on%20Rails%20Tutorial.html#sidebar-get_etc)
+
+GET 是最常用的 HTTP 操作，用来从网络上读取数据，它的意思是“读取一个网页”。
+当访问如 baidu.com 或 www.shnu.edu.cn 时，浏览器发出的就是 GET 请求。
+POST 是第二种最常用的操作，当提交表单时浏览器发送的就是 POST 请求。
+在 Rails 应用程序中，POST 请求一般被用来创建某个东西（不过 HTTP 也允许 POST 进行更新操作）。
+例如，在提交注册表单时发送的 POST 请求就会在网站中创建一个新用户。
+
+剩下的两个动词，PATCH 和 DELETE 分别用来更新和销毁服务器上的某个东西。这两个操作比 GET 和 POST 少用一些，因为浏览器没有内建对这两种请求的支持，不过有些 Web 框架（比如 Rails）通过一些巧妙的处理方式，看起来就像是浏览器发出的一样。
+
+另外，在 Rails 之前的版本中，没有使用 PATCH，用的是 PUT，Rails 4 仍然支持 PUT，但 PATCH 能更好的表明 HTTP 请求的意图。
+
 
 ## 系统实现的相关技术[DONE]
 
@@ -112,12 +134,177 @@ Rails提供了一些Helper，可以在服务器一端用纯Ruby语言生成给�
 
 
 ## 系统模型和数据库的设计
-### 创建模型
+
 ### 系统数据库的设计
 
-无需设计数据库？？
+根据对项目的需求分析以及系统用例图，提取业务所需要实体，设计系统的数据库表，如下表所示。
+
+------------    --------------------    --------------------
+     序号              表名                     描述
+------------    --------------------    --------------------
+      1              users                    所有用户信息
+
+      2              products                 商品信息
+
+      3              carts                    购物车
+
+      4              line_items               购物车中的商品
+
+      5              categories               商品分类
+
+      6              categorizations          商品与分类的配对  
+
+      7              orders                   用户订单
+------------    --------------------    ---------------------
+
+Table: 系统数据库表
+
+### 创建模型
+
+
+在 Rails 中，模型的名字使用开头大写的单数，对应的数据表名使用小写的复数。
+Rails 提供了一个生成器 (generator) 用来创建模型，大多数 Rails 开发者创建模型时都会使用。
+以下以创建订单模型为例，我们在终端里执行下面的命令：
+
+    $ rails generate model Order name address:text email pay_type # 未声明数据类型的默认为 string 类型
+
+生成下列文件
+
+![create_model](application-developement/create_model.png)
+
+后两个为模型的测试用例，我们关心的是前两个文件。
+第一个文件是 Rails 的数据迁移文件，用来通过相关命令对数据库进行迁移（如创建数据表，添加字段等）。
+
+第二个则是真正的订单模型文件，用来验证属性有效性、定义实现功能的相关方法等。
+
+之后我们执行
+
+    rake db:migrate
+
+进行数据库的迁移
+
+![order_migration](application-developement/order_migration.png)
+
+Rails 会执行迁移操作，并提示创建了 orders 表。
+
 
 ### 模型之间建立关联
+
+#### [Active Record 关联](http://guides.rubyonrails.org/association_basics.html)
+
+在 Rails 中，关联是两个 Active Record 模型之间的关系。
+关联使用宏的方式实现，用声明的形式为模型添加功能。
+例如，声明一个模型属于（belongs_to）另一个模型后，Rails 会维护两个模型之间的“主键-外键”关系，而且还向模型中添加了很多实用的方法。
+Rails 支持六种关联：
+
+1. belongs_to 关联
+
+    belongs_to 关联创建两个模型之间一对一的关系，声明所在的模型实例属于另一个模型的实例。
+    例如，如果程序中有用户和订单两个模型，每个订单只能指定给一个用户，就要这么声明订单模型：
+
+        class Order < ActiveRecord::Base
+          belongs_to :user
+        end
+2. has_one 关联
+
+    has_one 关联也会建立两个模型之间的一对一关系，但语义和结果有点不一样。
+    这种关联表示模型的实例包含或拥有另一个模型的实例。
+    例如，在程序中，每一个用户只能有一个购物车，那么可以这么定义用户模型：
+
+        class User < ActiveRecord::Base
+            has_one :cart, dependent: :destroy
+        end
+
+    在这里，dependent: :destroy 表示销毁 User 对象的一个实例时，也会在其关联的实例 Cart 上调用 destroy 方法将其销毁。
+3. has_many 关联
+
+    has_many 关联建立两个模型之间的一对多关系。
+    在 belongs_to 关联的另一端经常会使用这个关联。
+    has_many 关联表示模型的实例有零个或多个另一个模型的实例。
+    例如，在程序中有用户和订单两个模型，用户模型可以这么定义：
+
+        class User < ActiveRecord::Base
+            has_many :orders
+        end
+4. has_many :through 关联
+
+    has_many :through 关联经常用来建立两个模型之间的多对多关联。
+    这种关联表示一个模型的实例可以借由第三个模型，拥有零个和多个另一个模型的实例。
+    例如，在产品的分类中，
+    一种产品可以有多种分类（配对）的方式；
+    而一种分类也可以有多种（与产品一对一）分配的方式（这种方式即为 Categorization）。
+    依此，我们可以建立第三个模型 Categorization。
+    这中间的关联声明如下：
+
+        class Product < ActiveRecord::Base
+            has_many :categories, through: :categorizations
+            has_many :categorizations
+        end 
+
+        class Categorization < ActiveRecord::Base
+            belongs_to :product
+            belongs_to :category
+        end
+
+        class Category < ActiveRecord::Base
+            has_many :products, through: :categorizations
+            has_many :categorizations
+        end
+5. has_one  :through 关联
+
+    has_one :through 关联建立两个模型之间的一对一关系。
+    这种关联表示一个模型通过第三个模型拥有另一个模型的实例。
+    例如，每个用户都只有一个账户，而且每个账户都有一个账户历史记录信息，那么可以这么定义模型：
+
+        class User < ActiveRecord::Base
+          has_one :account
+          has_one :account_history, through: :account
+        end
+         
+        class Account < ActiveRecord::Base
+          belongs_to :user
+          has_one :account_history
+        end
+         
+        class AccountHistory < ActiveRecord::Base
+          belongs_to :account
+        end
+6. has_and_belongs_to_many 关联
+
+    has_and_belongs_to_many 关联之间建立两个模型之间的多对多关系，而不借由第三个模型。
+    因此，以上的 has_many :through 关联中的模型也可如此定义：
+
+        class Product < ActiveRecord::Base
+          has_and_belongs_to_many :categories
+        end
+         
+        class Category < ActiveRecord::Base
+          has_and_belongs_to_many :products
+        end
+
+    当然，我们相应地也需要利用 rake db:migrate 命令来创建一张[连接数据表](http://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html#method-i-has_and_belongs_to_many)，迁移文件内容如下：
+
+        class CreateCategoriesProductsJoinTable < ActiveRecord::Migration
+          def change
+            create_table :categories_products, id: false do |t|  # 不创建自动编号的 id 栏
+              t.integer :category_id
+              t.integer :products_id
+            end
+          end
+        end
+
+    Rails 提供了两种建立模型之间多对多关系的方法。
+    其中比较简单的是以上的 has_and_belongs_to_many，可以直接建立关联。
+    （不过必须要在数据库中创建如以上的连接数据表）
+
+    当然该方法本身也有一些限制。
+    和 has_many :through 关联相比，该方法不能将第三个模型作为独立实体使用，
+    而仅仅只有一张连接数据表；
+    另外在这张连接数据表中，也不能添加额外的属性。
+
+#### 系统模型关联的建立
+
+![associations](application-developement/associations.png)
 
 ## 系统主要模块的实现
 ### RubyGems
@@ -274,6 +461,198 @@ Devise 是 Ruby on Rails 中最常用的 gem 之一。
     load_and_authorize_resource 
 
 即可在该控制器的任意行为被触发之前通过 before_action 回调函数来验证用户对于该动作的权限。
+
+### 商品管理模块
+
+在整个 Rails 应用中，可以说商品管理模块是最容易实现的一个模块，因为我们对于这一模块的需求完全能使其符合 REST 风格，并被模型化，成为一组资源 (resource)，可以被执行所有 CRUD 操作。
+
+所以，我们只需在命令行中利用 Rails 脚手架即可快速生成这样的一组 Product 资源。
+
+    rails generate scaffold Product title description:text image_url price:decimal
+
+![scaffold_product](application-developement/scaffold_product.png)
+
+从生成的代码中可以看出，rails 生成器相应地生成了 Product 的模型 (model)，视图 (view) 和 控制器 (controller)，在执行数据库迁移之后，我们通过访问 http://localhost:3000/products 发现已经能够对商品进行 CRUD 操作了（浏览器中访问到的页面都由“视图”负责）。
+
+以下阐述 CRUD 在本组资源中的体现，下图为自动生成的 Product 控制器 products_controller.rb 的主要代码。
+
+    class ProductsController < ApplicationController
+      before_action :set_product, only: [:show, :edit, :update, :destroy]
+
+      def index
+        @products = Product.all
+      end
+
+      def show
+      end
+
+      def new
+        @product = Product.new
+      end
+
+      def edit
+      end
+
+      def create
+        @product = Product.new(product_params)
+
+        respond_to do |format|
+          if @product.save  # 该商品实例被保存成功则返回 true，反之 false
+            format.html { redirect_to @product, notice: 'Product was successfully created.' }
+            format.json { render :show, status: :created, location: @product }
+          else
+            format.html { render :new }
+            format.json { render json: @product.errors, status: :unprocessable_entity }
+          end
+        end
+      end
+
+      def update
+        respond_to do |format|
+          if @product.update(product_params)
+            format.html { redirect_to @product, notice: 'Product was successfully updated.' }
+            format.json { render :show, status: :ok, location: @product }
+          else
+            format.html { render :edit }
+            format.json { render json: @product.errors, status: :unprocessable_entity }
+          end
+        end
+      end
+
+      def destroy
+        @product.destroy
+        respond_to do |format|
+          format.html { redirect_to products_url, notice: 'Product was successfully destroyed.' }
+          format.json { head :no_content }
+        end
+      end
+
+      private
+        def set_product
+          @product = Product.find(params[:id])
+        end
+
+        def product_params
+          params.require(:product).permit(:title, :description, :image_url, :price)
+        end
+    end
+
+在代码中，我们可以看到一共有 index, show, new, edit, creat, update, destroy 七个动作。
+下图中的商品列表页调用了 index 动作。
+
+![products_index](application-developement/products_index.png)
+
+其中， New Product 链接指向了 new 动作，通过 GET 请求显示资源创建的页面。
+
+![new_product](application-developement/new_product.png)
+
+输入完相应的数据后，通过点击 Create Product 按钮，触发 create 动作，通过 POST 请求将数据加入数据库，同时 create 动作中的
+
+    redirect_to @product, notice: 'Product was successfully created.'
+
+语句能直接使浏览器跳转到该商品的详情页面（通过 show 动作显示），并显示商品添加成功的提示。
+
+![create_product](application-developement/create_product.png)
+
+这时在页面中出现了 Edit 链接，它调用的是 edit 动作通过 GET 请求来显示本商品的修改页面，
+
+![edit_product](application-developement/edit_product.png)
+
+在点击 Update Product 按钮之后触发 update 动作， Rails 调用 PATCH 请求更新商品数据。
+
+![update_product](application-developement/update_product.png)
+
+最后回到商品的列表页，发觉已经有一件商品“上架”了。
+
+![products_index_2](application-developement/products_index_2.png)
+
+我们此时也可通过点击 Destroy 来让 Rails 通过调用 DELETE 请求销毁该实例。
+
+
+以上我们提到，在浏览器中所有显示的页面都由“视图”负责，它只负责显示，其中不应该包含任何的逻辑。
+在 Rails 应用中，所有的视图文件都（应）被存放在 /app/views 中。
+以 /app/views/products/index.html.erb 为例，
+
+    <h1>Listing products</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Image url</th>
+          <th>Price</th>
+          <th colspan="3"></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @products.each do |product| %>
+          <tr>
+            <td><%= product.title %></td>
+            <td><%= product.description %></td>
+            <td><%= product.image_url %></td>
+            <td><%= product.price %></td>
+            <td><%= link_to 'Show', product %></td>
+            <td><%= link_to 'Edit', edit_product_path(product) %></td>
+            <td><%= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <br>
+
+    <%= link_to 'New Product', new_product_path %>
+
+它显示的是 index 动作所显示的页面，根据 products_controllers.rb 中 index 动作的定义，
+
+    def index
+        @products = Product.all
+    end
+
+在 index 动作中应通过调用该动作将所有 Product 对象的实例赋给 @products 变量，从而能在视图中通过 @products.each 对 @products 变量的循环输出该实例的各种属性值。
+
+另外， link_to 是 Rails 提供的一个帮助方法 (helper)，用于创建超级链接。
+该方法的第一个参数为链接的显示名称，而第二个则为链接所指向的路径。
+
+一个 Rails 应用的所有动作指向的路径可通过
+
+    rake routes
+
+查看，以下列出所有 Product 模型的相关的路径（只有 GET 请求负责页面信息的获取和显示，所以除 GET 外的请求无路径），和其调用的 HTTP 请求。
+
+![product_routes](application-developement/product_routes.png)
+
+Rails 中所有的路径都定义在 config/routes.rb 中，
+
+    Rails.application.routes.draw do
+      resources :products
+      devise_for :users
+      resources :users
+    end
+
+其中， resources 表示“资源”，意思是将商品设想为对象，可以通过 HTTP 协议在网页中创建（create）、读取（read）、更新（update）和删除（delete）。
+
+仅仅一行命令就能生成如此完整的一个结构确实是让人觉得非常的了不起，这也是传统的网站开发技术所不能企及的。
+
+但是生成的这些功能中还有一个小缺陷，那就是没有对 new 和 edit 提交的表单进行验证，这样导致了即使是空表单也能够顺利被提交和显示。
+所以我们之后应前往 /app/models/product.rb ，也就是 Product 的模型文件中添加验证。
+
+    validates :title, :description, :price, :presence => true  # 不能为空
+    validates :title, :uniqueness => true,  # 标题不可重复
+                      :length => { minimum: 10 }  # 最少10个字符
+    validates :image_url, allow_blank: true, :format => {
+        with: %r{\.(gif|jpg|png)\Z}i,   # 利用正则表达式定义格式
+        message: 'must be a URL for GIF, JPG or PNG image'  # 错误提示
+    }
+    validates :price, numericality: { greater_than_or_equal_to: 0.01 }  # 价格不得低于0.01
+
+![product_validation](application-developement/product_validation.png)
+
+如图所示，在加上验证之后，不符合验证的就会提示相应的出错信息。
+
+至此，我们的商品模块的基本功能就已经完成了。
 
 ### 购物车模块
 ### 订单模块
