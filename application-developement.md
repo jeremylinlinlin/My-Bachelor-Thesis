@@ -155,7 +155,7 @@ Gemfile 的写法大致如下：
 
 本系统所用到的 gems 如下图所示：
 
-![Gems needed for the app](gems.jpg)
+![Gems needed for the app](application-developement/gems.jpg)
 
 在设定好 Gemfile 之后，我们主要用到以下指令：
 
@@ -195,8 +195,8 @@ Devise 是 Ruby on Rails 中最常用的 gem 之一。
 生成 User 数据表。
 此时，我们进入 http://localhost:3000/users/sign_up 和 http://localhost:3000/users/sign_up ，发现已经实现了用户注册和用户登录功能了。
 
-![user_signup](user_signup.png)
-![user_signin](user_signin.png)
+![user_signup](application-developement/user_signup.png)
+![user_signin](application-developement/user_signin.png)
 
 另外 devise 还提供了一些控制器的 filters 和帮助方法 (helper) 。
 
@@ -216,7 +216,7 @@ Devise 是 Ruby on Rails 中最常用的 gem 之一。
 
 接着我们利用 rake routes 来查看 devise 这个 gem 为我们生成的所有控制器和动作 (action) 。
 
-![devise_rake_routes](devise_rake_routes.png)
+![devise_rake_routes](application-developement/devise_rake_routes.png)
 
 这些信息足以让我们能在任意页面创建用户登录和注册的链接了
 
@@ -229,11 +229,11 @@ Devise 是 Ruby on Rails 中最常用的 gem 之一。
 
 在应用全局模板文件 /online-store/app/views/layouts/application.html.erb 内插入以上代码并刷新页面，可以发现用户登录和注册链接已经被创建
 
-![sign in and up links](sign_in_and_up_links.png)
+![sign in and up links](application-developement/sign_in_and_up_links.png)
 
 登录后则显示
 
-![signed_in_link](signed_in_link.png)
+![signed_in_link](application-developement/signed_in_link.png)
 
 至此，普通用户的注册于登录模块已基本完成。
 
@@ -328,7 +328,7 @@ git commit还有一个-a的参数，可以将那些没有通过git add添加的�
 Git的工作完全依赖于这类指纹字串，所有保存在Git数据库中的东西都是用此哈希值来作为索引的。
 
 ### 本系统运用Git进行版本控制的主要流程
-![Git flowchart](git-flowchart.jpg) // Lacks the branch part
+![Git flowchart](application-developement/git-flowchart.jpg) // Lacks the branch part
 ### GitHub简介
 
 [GitHub](http://zh.wikipedia.org/wiki/GitHub#.E4.B8.AD.E5.9B.BD.E5.A4.A7.E9.99.86)是目前最流行的Git访问站点，它是一个共享虚拟主机服务，用于存放使用Git版本控制的软件代码和内容项目。
@@ -356,12 +356,12 @@ GitHub同时提供付费账户和为开源项目提供的免费账户。
 在Git中，通过使用git commit命令对当前工作目录所做的修改进行提交，这一次提交可被算作为一个“版本”，而-m参数则表示该版本的描述。
 某版本中初次使用git commit提交前必须使用git add .("."表示当前目录的所有文件)或在使用git commit时同时加上-a参数。
 另外，初次提交必须含有-m参数，否则会自动进入默认命令行编辑器提示输入提交版本描述。
-![Commit Message](commit-message.jpg)
+![Commit Message](application-developement/commit-message.jpg)
 每提交完一次，Git系统就会自动生成一个SHA-1值，利用git log可查看各版本提交的历史。
 如在若干版本提交之后发觉之前某一版本删除了某重要功能，此时则可利用“git checkout 对应SHA-1值”即时返回至该版本之前的某一版本，根据需要进行各种操作。
 Git版本控制的主要功能由此实现，即自从首次提交(Initial Commit)那一刻起，每一次版本的提交就相当于对所有数据进行了一次保存。（实际并不是真正的保存，具体原理可参考Scott Chacon的[Pro Git](http://git-scm.com/book)一书）<br />
 本系统的[GitHub主页](https://github.com/jeremylinlin/online-bookstore)中，在任何分支里都可查看到该分支中每一个源码文件最新版本所对应的最近一次版本提交信息。（若某文件在某次版本提交中未被修改则不会被提交）
-![Commit Messages](commit-messages.jpg)
+![Commit Messages](application-developement/commit-messages.jpg)
 
 ## 云应用部署平台Heroku[DONE]
 
