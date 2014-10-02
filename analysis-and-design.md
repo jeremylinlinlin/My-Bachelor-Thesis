@@ -25,18 +25,18 @@
 顾客在这个书店中可以选择自己喜欢的图书进行购买。
 而后台管理包括图书的添加、分类、用户管理、订单管理等模块。
 
-![demand_analysis](demand_analysis.JPG)
+![demand_analysis](analysis-and-design/demand_analysis.JPG)
 
 ## 系统用例图
 
 ### 用户登录用例图
 
-![user_login_use_case](user_login_use_case.JPG)
+![user_login_use_case](analysis-and-design/user_login_use_case.JPG)
 
 ### 普通用户权限用例图
 
-![user_use_case](user_use_case.JPG)
+![user_use_case](analysis-and-design/user_use_case.JPG)
 
 ### 管理员权限用例图
 
-![admin_use_case](admin_use_case.JPG)
+![admin_use_case](analysis-and-design/admin_use_case.JPG)
