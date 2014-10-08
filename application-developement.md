@@ -655,6 +655,151 @@ Rails 中所有的路径都定义在 config/routes.rb 中，
 至此，我们的商品模块的基本功能就已经完成了。
 
 ### 购物车模块
+
+首先我们同样利用 Rails 的脚手架生成器生成一个购物车的 MVC 结构并执行数据库的迁移。
+
+    rails generate scaffold Cart && rake db:migrate
+
+随后，我们在 /app/controllers/concerns/current_cart.rb 中定义一个 CurrentCart 模块。
+
+    module CurrentCart
+      extend ActiveSupport::Concern
+
+      private
+
+        def set_cart
+          if user_signed_in?  # user_signed_in? 判断用户登录状态 
+            if !current_user.cart.nil?
+              @cart = current_user.cart  # 每个用户的拥有自己唯一的购物车，已通过 Active Record 关联
+            else
+              @cart = Cart.create(user_id: current_user.id)
+            end
+          else
+            @cart = Cart.find(session[:cart_id])
+          end
+        rescue ActiveRecord::RecordNotFound
+            @cart = Cart.create
+            session[:cart_id] = @cart.id
+        end
+
+    end
+
+这一模块的主要功能是定义一个 @cart 变量作为整个购物流程的购物车的实例对象。
+若某登录用户已有自己的购物车，则将该用户的购物车实例赋给 @cart 变量;
+若没有，则创建和该用户关联的购物车实例并将其赋给 @cart 变量;
+然而，如果用户是第一次访问网站，就应创建一个匿名的 Cart 实例，将其赋给 @cart ，并将 @cart 变量的 id 赋值给一个 session 变量（ session 变量的生命周期截止于浏览器关闭时）。
+若该用户在另一个标签页打开了网站，程序则会通过寻找 session 变量的方式来调出当前的购物车。
+
+这一操作中，我们不仅实现了未登录用户对于购物车的可操作性，更是对已登录用户实现了购物车的绑定（即下次登录依然有同样的购物车）。
+以后我们需要调用 set_cart 方法时只需在控制器中加入
+
+    include CurrentCart
+
+即可。
+
+随后，我们添加购物车中的商品 (LineItem) 的模型并迁移数据库：
+
+    rails generate scaffold LineItem product:references cart:belongs_to && rake db:migrate
+
+生成如下的 LineItem 模型：
+
+    class LineItem < ActiveRecord::Base
+        belongs_to :product
+        belongs_to :cart
+    end
+
+这意味着如果没有相应的商品和购物车的存在不能产生任何的 line item 。
+相应地，我们要在 Cart 模型与 Product 模型中加入 LineItem 对应的关联：
+
+    class Cart < ActiveRecord::Base
+        has_many :line_items, dependent: :destroy  # lineitem 随着对应 cart 的销毁而销毁
+    end
+
+    class Product < ActiveRecord::Base
+        has_many :line_items
+    end
+
+在商品列表的页面上，我们通过添加
+
+    <% @products.each do |product| %>
+        <div class="entry">
+          <%= image_tag(product.image_url) %>
+          <h3><%= product.title %></h3>
+          <div class="price_line">
+            <span class="price"><%= number_to_currency(product.price) %></span>
+            <%= link_to "View details", product %>
+            <%= button_to '加入购物车', line_items_path(product_id: product) %>
+          </div>
+        </div>
+    <% end %>
+
+中的
+
+    <%= button_to '加入购物车', line_items_path(product_id: product) %>
+
+将当前 product 的 id 传递给 line items 的控制器。
+
+在line items 的控制器文件 line_items_controller.rb 中，我们首先必须添加
+
+    include CurrentCart
+    before_action :set_cart, only: [:create]
+
+来保证购物车的存在。
+另外，在 create 动作中，我们首先添加
+
+    product = Product.find(params[:product_id])
+
+来获取先前的页面中传递的 product_id 参数从而获取该商品，其次添加
+
+    @line_item = @cart.line_items.build(product: product)
+
+表示将这一 line item 添加入当前购物车。
+而这两行应被加入 create 动作的原因是一个链接的默认的 HTTP 请求为 GET，对应的是 Rails 中的 show，index 等动作;
+而一个按钮的默认 HTTP 请求则为 POST，对应的则是 Rails 中的 create 动作，
+Rails 使用这一些惯例 (convention) 来决定调用何种方法。
+
+最后，我们在 @line_item.save 后添加
+
+    redirect_to @line_item.cart
+
+来保证该 line item 被添加后页面跳转至购物车，而不是无意义的 line item 的 show 动作所对应的视图。
+这样，“加入购物车”按钮的功能就算完成了。
+
+相应地，我们添加在 line items 的视图中加入购物车中商品的删除按钮，
+
+    <%= button_to "X", line_item, method: :delete, :disabled => !@order.nil? %>  # 有订单的状态下该按钮会被禁止并呈灰色
+
+以及清空购物车按钮
+
+    <%= button_to '清空购物车', @cart, method: :delete, data: { confirm: '你确认要清空购物车吗？' } %>  # data 之后内容使得点击按钮后出现确认提示。
+
+同样，我们之后要分别去 line item 和 cart 的控制器中定义和修改 destroy 动作的内容。
+
+在 line_items_controller.rb 中，
+
+    def destroy
+      @line_item.destroy
+      respond_to do |format|
+        format.html { redirect_to store_url }
+        format.json { head :no_content }
+      end
+    end
+
+而在 carts_controller.rb 中
+
+    def destroy
+      @cart.destroy if @cart.id == session[:cart_id] || @cart == current_user.cart  # 保证销毁的购物车是自己的购物车（防止攻击者通过某种手段伪造出 DELETE 请求来销毁数据）
+      session[:cart_id] = nil  # 销毁当前的 session 变量
+      respond_to do |format|
+        format.html { redirect_to store_url }
+        format.json { head :no_content }
+      end
+    end
+
+到现在为止，购物车的基本功能已经完成，接下来我们利用 Rails 对于 Ajax 优秀的支持和整合，添加一些相关的功能，从而使得页面的交互得以更快速地完成。
+
+
+
 ### 订单模块
 ### 邮件发送模块
 ### 多国语言模块
