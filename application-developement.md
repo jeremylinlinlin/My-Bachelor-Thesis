@@ -708,7 +708,7 @@ Rails 中所有的路径都定义在 config/routes.rb 中，
         belongs_to :cart
     end
 
-这意味着如果没有相应的商品和购物车的存在不能产生任何的 line item 。
+这意味着如果没有相应的商品和购物车的存在不能产生任何的项目。
 相应地，我们要在 Cart 模型与 Product 模型中加入 LineItem 对应的关联：
 
     class Cart < ActiveRecord::Base
@@ -753,7 +753,7 @@ Rails 中所有的路径都定义在 config/routes.rb 中，
 
     @line_item = @cart.line_items.build(product: product)
 
-表示将这一 line item 添加入当前购物车。
+表示将这一项目添加入当前购物车。
 而这两行应被加入 create 动作的原因是一个链接的默认的 HTTP 请求为 GET，对应的是 Rails 中的 show，index 等动作;
 而一个按钮的默认 HTTP 请求则为 POST，对应的则是 Rails 中的 create 动作，
 Rails 使用这一些惯例 (convention) 来决定调用何种方法。
@@ -762,7 +762,7 @@ Rails 使用这一些惯例 (convention) 来决定调用何种方法。
 
     redirect_to @line_item.cart
 
-来保证该 line item 被添加后页面跳转至购物车，而不是无意义的 line item 的 show 动作所对应的视图。
+来保证该项目被添加后页面跳转至购物车，而不是无意义的 line item 的 show 动作所对应的视图。
 这样，“加入购物车”按钮的功能就算完成了。
 
 相应地，我们添加在 line items 的视图中加入购物车中商品的删除按钮，
@@ -838,9 +838,157 @@ Rails 使用这一些惯例 (convention) 来决定调用何种方法。
 加入了 Ajax 后，购物车模块也已圆满完成。
 
 ### 订单模块
+
+同样我们利用 Rails 脚手架生成订单模型
+
+    rails generate scaffold Order name address:text email pay_type
+
+并利用 Rails 生成一个 migration 来创建 Order 与 LineItem 在数据库中的关联，
+
+    rails generate migration add_order_to_line_item order:references
+
+之后迁移数据库
+
+    rake db:migrate
+
+并分别在模型中添加关联，在 line_item.rb 中添加
+
+    belongs_to :order
+
+在 order.rb 中添加
+
+    has_many   :line_items, dependent: :destroy
+    belongs_to :user  # 顺便添加订单与用户的关联
+
+另外在 user.rb 中也应相应添加
+
+    has_many :orders
+
+在购物车页面中添加
+
+    <%= button_to "结算", new_order_path, method: :get %>
+
+从而可通过此按钮进入新订单页，即结算页。
+
+在 Order 控制器的 new 动作中，我们如此定义：
+
+    def new
+      if @cart.line_items.empty?
+        redirect_to store_url, notice: "您的购物车是空的哦。"
+        return
+      end
+
+      @order = Order.new
+    end
+
+即：若 new 动作被触发时购物车为空则返回商场首页并显示错误提示（直接通过地址栏访问该页面可能出现这种情况），若购物车不为空则生成新订单实例。
+
+在 new 动作的视图，即 /app/views/orders/new.html.erb 中，我们修改如下：
+
+    <div class="depot_form">
+      <fieldset>
+        <legend>请输入您的信息</legend>
+        <%= render 'form' %>  # 该代码能显示同目录下的 _form.html.erb 的局部视图，用于简化代码，增强可读性。
+      </fieldset>
+    </div>
+
+之后我们前往 _form.html.erb 修改订单表格的显示，
+
+    <%= form_for(@order) do |f| %>
+
+      <% if @order.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@order.errors.count, "error") %>
+    prohibited this order from being saved: %></h2>
+          <ul>
+          <% @order.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="field">
+        <%= f.label :name %><br>
+        <%= f.text_field :name, size: 40 %>
+      </div>
+      <div class="field">
+        <%= f.label :address %><br>
+        <%= f.text_area :address, rows: 3, cols: 40 %>
+      </div>
+      <div class="field">
+        <%= f.label :email %><br>
+        <%= f.email_field :email, size: 40 %>
+      </div>
+      <div class="field">
+        <%= f.label :pay_type %><br>
+        <%= f.select :pay_type, Order::PAYMENT_TYPES, 
+                          prompt: "请选择一种付款方式" %>
+        <!-- PAYMENT_TYPES 被定义在 Order 模型中 -->
+      </div>
+      <div class="actions">
+        <%= f.submit '确认交易' %>
+      </div>
+    <% end %>
+
+随后我们添加在 Order 模型中添加 PAYMENT_TYPES 的定义
+
+    class Order < ActiveRecord::B ase
+        PAYMENT_TYPES = [ "支票", "信用卡", "支付宝" ]
+    end
+
+现在再次进入新订单页面，表格已能显示
+
+![order_table](application-developement/order_table.png)
+
+new 动作完成后，我们接着自然需要考虑 create 动作的实现，也就是“确认交易”所提交的内容。
+
+我们首先在 Order 模型中定义如下方法：
+
+    class Order < ActiveRecord::Base
+
+      # 中间内容省略
+
+      def add_line_items_from_cart(cart)
+        cart.line_items.each do |item|
+          item.cart_id = nil
+          line_items << item
+        end
+      end
+
+    end
+
+该方法将购物车中的所有项目全部添加入该订单所关联的 line_items 中，同时清除每个项目所对应的购物车 id 。
+
+之后进入 Order 控制器，在它的 create 动作中稍作修改
+
+    def create
+      @order = Order.new(order_params)
+      @order.add_line_items_from_cart(@cart)  # 将购物车中所有项目加入订单
+      @order.user_id = current_user.id if user_signed_in?  # 若用户已登录，将更改订单与当前用户进行关联
+
+      respond_to do |format|
+        if @order.save
+          if user_signed_in?
+            Cart.destroy(current_user.cart)  # 若已登录，销毁当前用户的购物车
+          else
+            Cart.destroy(session[:cart_id])
+            session[:cart_id] = nil  # 若未登录，销毁匿名购物车实例，并将 session 变量设置为 nil
+          end
+
+          format.html { redirect_to store_url, notice: "感谢您的购买！" }  # 订单实例保存成功后跳转到商城首页，并显示感谢购买提示
+          format.json { render :show, status: :created, location: @order }
+        else
+          format.html { render :new }
+          format.json { render json: @order.errors, status: :unprocessable_entity }
+        end
+      end
+    end
+
+就这样，订单模块已完成。
+
 ### 邮件发送模块
 ### 多国语言模块
-
 ## 版本控制系统Git[DONE]
 ### Git简介
 
