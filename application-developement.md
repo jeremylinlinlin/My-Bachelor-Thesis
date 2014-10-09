@@ -798,7 +798,44 @@ Rails 使用这一些惯例 (convention) 来决定调用何种方法。
 
 到现在为止，购物车的基本功能已经完成，接下来我们利用 Rails 对于 Ajax 优秀的支持和整合，添加一些相关的功能，从而使得页面的交互得以更快速地完成。
 
+首先我们在需要使用 Ajax 提交 POST 请求的代码中添加 remote: true，使浏览器用 Ajax 提交该请求。
 
+    <%= button_to "X", line_item, method: :delete, remote: true, :disabled => !@order.nil? %>
+
+    <%= button_to '清空购物车', @cart, method: :delete, data: { confirm: '你确认要清空购物车吗？', remote: true }
+
+    <%= button_to '加入购物车', line_items_path(product_id: product), remote: true %>
+
+随后我们要告诉这一些 create 和 delete 动作一旦该动作提交了一个 JavaScript 请求（Ajax 是 JavaScript 的一个库），就应以 js 的格式作为回应，我们要做的是在三个动作中的 respond_to() 方法中添加入一句
+
+    format.js
+
+即可。
+
+最后，我们分别创建对应的 create.js.erb 和 destroy.js.erb
+
+在 /app/views/line_items/create.js.erb 中，
+
+    $('#notice').hide();  # 隐藏提示（因为在一个页面上，无需提示）
+
+    if ($('#cart tr').length == 1) { $('#cart').show('blind'); 100}  # 有商品被添加则显示购物车
+
+    $('#cart').html("<%= escape_javascript render(:template => 'carts/show') %>");  # 将购物车页面通过 jQuery 显示
+
+    $('#current_item').css({'background-color':'#88ff88'}).
+      animate({'background-color':'#114411'}, 1500);  # 将当前 line item 的背景改为#114411，持续1.5秒，之后 jQuery 淡出效果使背景变为 #88ff88
+
+    $('#sum').html("<%= number_to_currency(@cart.total_price) %>")  # 商品被添加后立即刷新总商品价格
+
+在 /app/views/line_items/destroy.js.erb 和 /app/views/carts/destroy.js.erb 中，
+
+    if ( <%= @cart.line_items.empty? %> ) { $('#cart').hide('blind', 1000); }  # 购物车中若无商品则立即隐藏购物车
+
+    $('#cart').html("<%= escape_javascript render(:template => 'carts/show') %>");
+
+    $('#sum').html("<%= number_to_currency(@cart.total_price) %>")
+
+加入了 Ajax 后，购物车模块也已圆满完成。
 
 ### 订单模块
 ### 邮件发送模块
