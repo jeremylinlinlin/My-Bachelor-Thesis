@@ -988,6 +988,121 @@ new 动作完成后，我们接着自然需要考虑 create 动作的实现，�
 就这样，订单模块已完成。
 
 ### 邮件发送模块
+
+在邮件发送模块中主要解决的有三个部分，即：如何发送邮件、何时发送邮件、以及邮件发送的内容。
+
+1. 邮箱的配置：
+
+    首先进入 /config/environments/ 目录，在这一目录下默认有三个文件，分别为 development.rb , production.rb 和 test.rb，这三个文件分别用来定义三种不同环境的系统配置，三种环境分别为：本地开发环境、生产环境（即线上部署的环境）和测试使用环境。
+
+    我们现在在本地开发的环境下只需在 development.rb 中添加一下配置，
+
+        config.action_mailer.delivery_method = :smtp
+
+        config.action_mailer.smtp_settings = {
+               address:              "smtp.example.com",  # 此处输入邮件服务器地址
+               port:                  587,
+               domain:                "example.com",
+               authentication:        "plain",
+               user_name:             "example",  # 此处输入发信邮箱的用户名
+               password:              "example",  # 此处输入发信邮箱的密码
+               enable_starttls_auto:  true
+        }
+
+    线上的部署环境的配置同上。
+
+2. 邮件的发送
+
+在 Rails 中，邮件的发送由 mailer 负责，位于 /app/mailers 这一文件夹下。
+里面的文件用于定义不同邮件发送“动作”所使用的方法，因此他的功能与控制器极为相似。
+另外， Rails 对于 mailer 也有相关的生成器，我们在这里只生成一个确认订单后的邮件发送模块，多个模块可继续在 received 后添加。
+
+    rails generate mailer OrderNotifier received
+
+![generate_mailer](application-developement/generate_mailer.png)
+
+之后我们进入生成的 order_notifier.rb 来定义 received 方法，如下：
+
+    class OrderNotifier < ActionMailer::Base
+      default from: "黄文麟 <example@example.com>"  # 此处定义发件人信息
+
+      def received(order)
+        @order = order
+        mail to: order.email, subject: "您的交易已被确认"  # 此处定义发送到的邮箱和发送的邮件标题
+      end
+    end
+
+接着我们来看一下生成的两个视图文件，
+其中 received.text.erb 为纯文本视图模板，而 received.html.erb 则为 html 格式的发件模板。
+我们在这里只用到 received.html.erb 如下：
+
+    <h3>订单确认通知</h3>
+    <p>
+      我们发送这封邮件来通知您我们已经收到了您的订单了，我们将会尽快为您发货，谢谢您的惠顾，您的商品信息如下：
+    </p>
+
+    <table>
+      <tr><th colspan="2">品名</th><th>价格</th></tr>
+    <%= render @order.line_items %>
+    </table>
+
+其中，<%= render @order.line_items %> 所显示的是该订单实例所对应的所有项目，该局部视图文件位于 /app/views/line_items/_line_item.html.erb 中，在 Rails 中，如果将局部视图的文件以单数同名放置于该模型的视图文件夹中，那么在调用可直接通过复数形式的模型名直接调用，如 @order.line_items 一句实际上调用了 /app/views/line_items/_line_item.html.erb 文件。
+
+该文件的内容如下：
+
+    <tr>
+      <td><%= line_item.quantity %>&times;</td>
+      <td><%= line_item.product.title %></td>
+      <td class="line_item_price" align="right"><%= number_to_currency(line_item.total_price) %></td>
+      <% if @cart %>
+        <td><%= button_to "X", line_item, method: :delete, remote: true, :disabled => !@order.nil? %></td>
+      <% end %>
+    </tr>
+
+可以发现，该文件正是我们 Cart 模型的 show 动作同样调用的文件，以下是 /app/views/carts/show.html.erb 的部分内容：
+
+    <table width="100%">
+      <%= render @cart.line_items %> 
+      <tr class="total_line">
+        <td colspan="2"><%= 总计 %></td>
+        <td class="total_cell"><%= number_to_currency(@cart.total_price) %></td>
+      </tr>
+    </table>
+
+其中，<%= render @cart.line_items %> 的作用与之前的 <%= render @order.line_items %> 完全相同。
+这里对于局部视图的使用体现了 Rails 的哲学之一：“不要自我重复 (DRY) ” ，而应摒弃输入和使用大量的重复代码。
+
+此外，在        
+
+    <td><%= button_to "X", line_item, method: :delete, remote: true, :disabled => !@order.nil? %></td>
+
+一句外可以发现有一个条件语句，
+
+    <% if @cart? %>
+
+表示条件语句内的代码仅在 @cart 不为 nil 时才显示（在 Ruby 语法中，一个普通变量仅在 nil 时返回 false ， 其余都为 true ），也就是说，要使删除商品的按钮显示，则当前的 Cart 实例必须不为空值。
+
+在之前我们在 Order 控制器的 create 动作中已添加如下代码
+
+    if @order.save
+      if user_signed_in?
+        Cart.destroy(current_user.cart)  # 若已登录，销毁当前用户的购物车
+      else
+        Cart.destroy(session[:cart_id])
+        session[:cart_id] = nil  # 若未登录，销毁匿名购物车实例，并将 session 变量设置为 nil
+      end
+    ...  
+    end
+
+于是，为使 mailer 中的 received 方法被调用时 cart 为 nil ，我们只需紧跟着在两个 Cart 实例销毁语句之后添加一句
+
+        OrderNotifier.received(@order).deliver
+
+调用 mailer 发送邮件，这样就能保证 "X" 按钮不在邮件的发件模板中显示，
+同时，我们也已完成了邮件发送模块。
+
+![email_sent](application-developement/email_sent.png)
+
 ### 多国语言模块
 ## 版本控制系统Git[DONE]
 ### Git简介
