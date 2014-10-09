@@ -991,27 +991,23 @@ new 动作完成后，我们接着自然需要考虑 create 动作的实现，�
 
 在邮件发送模块中主要解决的有三个部分，即：如何发送邮件、何时发送邮件、以及邮件发送的内容。
 
-1. 邮箱的配置：
+首先进入 /config/environments/ 目录，在这一目录下默认有三个文件，分别为 development.rb , production.rb 和 test.rb，这三个文件分别用来定义三种不同环境的系统配置，三种环境分别为：本地开发环境、生产环境（即线上部署的环境）和测试使用环境。
 
-    首先进入 /config/environments/ 目录，在这一目录下默认有三个文件，分别为 development.rb , production.rb 和 test.rb，这三个文件分别用来定义三种不同环境的系统配置，三种环境分别为：本地开发环境、生产环境（即线上部署的环境）和测试使用环境。
+我们现在在本地开发的环境下只需在 development.rb 中添加一下配置，
 
-    我们现在在本地开发的环境下只需在 development.rb 中添加一下配置，
+    config.action_mailer.delivery_method = :smtp
 
-        config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+           address:              "smtp.example.com",  # 此处输入邮件服务器地址
+           port:                  587,
+           domain:                "example.com",
+           authentication:        "plain",
+           user_name:             "example",  # 此处输入发信邮箱的用户名
+           password:              "example",  # 此处输入发信邮箱的密码
+           enable_starttls_auto:  true
+    }
 
-        config.action_mailer.smtp_settings = {
-               address:              "smtp.example.com",  # 此处输入邮件服务器地址
-               port:                  587,
-               domain:                "example.com",
-               authentication:        "plain",
-               user_name:             "example",  # 此处输入发信邮箱的用户名
-               password:              "example",  # 此处输入发信邮箱的密码
-               enable_starttls_auto:  true
-        }
-
-    线上的部署环境的配置同上。
-
-2. 邮件的发送
+线上的部署环境的配置同上。
 
 在 Rails 中，邮件的发送由 mailer 负责，位于 /app/mailers 这一文件夹下。
 里面的文件用于定义不同邮件发送“动作”所使用的方法，因此他的功能与控制器极为相似。
@@ -1104,6 +1100,127 @@ new 动作完成后，我们接着自然需要考虑 create 动作的实现，�
 ![email_sent](application-developement/email_sent.png)
 
 ### 多国语言模块
+
+要实现多国语言，我们需要先进行区域设置。
+我们首先在 /config/initializers 文件夹中新建一个名为 i18n.rb 的文件专门作为区域设置的文件。
+
+    I18n.default_locale = :cn
+    
+    LANGUAGES = [
+      ['English',          'en'],
+      ['中文',              'cn']
+    ]
+
+以上代码有两个功能，一是使用 I18n 模块设定默认的区域语言为中文，另一个则是使设置了区域选项的页面拥有 "en" 和 "cn" 两个版本。
+I18n 是一个很有趣的名字，它其实指代“国际化”的英文"Internationalization"，用 I18n 来指代是因为该单词的首字母 I 和尾字母 n 之间有18个字母，因此而得名。
+
+之后我们在 /config/routes.rb 中定义要进行区域设置的资源或路径，以下以 product 资源为例，
+
+    scope '(:locale)' do
+        resources :products
+    end
+
+代码中的 :locale 外有一对括号，这意味着这一区域设置是可选的，也就是说例如我们要打开商品列表页，我们不仅可以使用中文的 URL: http://localhost:3000/cn/products 和英文的 URL: http://localhost:3000/en/products， 也可直接使用 http://localhost:3000/products， 其显示的区域语言则为之前定义的默认区域语言：中文。
+
+在设置完区域设置的路径后，要将区域选项应用至系统中，我们需要在相应的模型控制器中加入一句回调函数
+
+    before_action :set_i18n_locale_from_params
+
+并作出如下定义：
+
+    def set_i18n_locale_from_params
+      if params[:locale]
+        if I18n.available_locales.map(&:to_s).include?(params[:locale])
+          I18n.locale = params[:locale]
+        else
+          flash.now[:notice] = 
+            "#{params[:locale]} 翻译缺失"
+          logger.error flash.now[:notice]
+        end
+      end
+    end
+
+以上方法意为若当前模型的控制器中有 :locale 这一选项则对其进行区域设置，若翻译缺失则显示错误信息。
+在本例中因为我们只针对 Product 模型设置了区域选项，所以我们只需在该模型的控制器中添加以上方法并在开头添加调用该方法的回调函数。
+但在实际的系统应用中，为使整个系统实现多国语言，我们用以上方法必须分别地在需要的所有模型的控制器中加入上述代码。
+为解决这一问题，我们只需在 /app/controllers/application_controller.rb 一文件中定义以上方法即可。
+
+该文件为整个系统中的通用控制器，在普通模型的控制器，如 Cart 模型控制器中，
+
+    class CartsController < ApplicationController
+
+该控制器所被定义的类继承于 ApplicationController 类，其他普通模型控制器也是如此。
+而我们在 application_controller 这一通用控制器中，我们会发现它所在的类正是 ApplicationController ，
+
+    class ApplicationController < ActionController::Base
+
+也就是说，所有在该文件中被定义的方法和调用的回调函数都能够自动被所有的模型控制器所在的类所继承。
+
+在完成这些设置之后，我们即可正式开始翻译网站的文本内容了。
+Rails 提供了一个 t 帮助方法，在这一方法的参数中以“.”开头的变量则会调用相应区域语言的模板文件。
+
+以下以新订单页面为例：
+
+    <div class="field">
+      <%= f.label :name, t('.name') %><br>
+      <%= f.text_field :name, size: 40 %>
+    </div>
+    <div class="field">
+      <%= f.label :address, t('.address') %><br>
+      <%= f.text_area :address, rows: 3, cols: 40 %>
+    </div>
+    <div class="field">
+      <%= f.label :email, t('.email') %><br>
+      <%= f.email_field :email, size: 40 %>
+    </div>
+    <div class="field">
+      <%= f.label :pay_type, t('.pay_type') %><br>
+      <%= f.select :pay_type, Order::PAYMENT_TYPES, 
+                        prompt: t('.pay_prompt') %>
+    </div>
+    <div class="actions">
+      <%= f.submit t('.submit') %>
+    </div>
+
+以上为新订单提交表单中的主要内容。
+其中，原来的“姓名”，“地址”，“邮箱”，“付款方式”，“请选择一种付款方式”，“确认交易”分别被替换成了
+('.name')，('.address')，('.email')，('.pay_type') ，t('.pay_prompt') 和 t('.submit')。
+之后只需在 /config/locales/cn.yml 和 /config/locales/en.yml 中分别定义相应的显示语言即可。
+
+在 cn.yml 中，
+
+    cn:
+
+      orders:
+        form:
+          name:         "姓名"
+          address:      "地址"
+          email:        "邮箱"
+          pay_type:     "付款方式"
+          pay_prompt:   "请选择一种付款方式"
+          submit:       "确认交易"
+
+在 en.yml 中，
+
+    en:
+
+      orders:
+        form:
+          name:         "Name"
+          address:      "Address"
+          email:        "Email"
+          pay_type:     "Pay type"
+          pay_prompt:   "Select a payment method"
+          submit:       "Place order"
+
+这样，在不同的区域语言环境下，浏览器就能根据当前的区域设置显示相应的显示语言了。
+
+![new_order_en](application-developement/new_order_en.png)
+
+![new_order_cn](application-developement/new_order_cn.png)
+
+
+
 ## 版本控制系统Git[DONE]
 ### Git简介
 
