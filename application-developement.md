@@ -1353,37 +1353,48 @@ Heroku 让 Rails 应用程序的部署变得异常简单，只要把源码纳入
 
 在配置完 Heroku 之后我们将主要使用 git push heroku 来上传代码，但还有另一些与 Heroku 相关的命令值得一提：
 
-1. 在本地 Rails 服务器中我们通过
+(1) 在本地 Rails 服务器中我们通过
 
-        rails server
+    rails server
+
 或
 
-        rails s
+    rails s
+
 启动服务器的同时即可看见命令窗口中的即时服务器运行日志。
 而要查看 Heroku 平台上的应用的即时日志信息，则可通过
 
     heroku logs --tail
+
 而
 
     heroku logs -n 50
+
 则表示显示当前 Heroku 应用最新运行日志的最后50行。
-2. 在本地 Rails 中我们通过
+
+(2) 在本地 Rails 中我们通过
 
         rake db:migrate
+
 来将所有未实施的迁移任务实施到目标数据库上。而在 Heroku 平台上，我们则通过
 
         heroku rake db:migrate
+
 进行远程数据库的数据迁移任务。
-3. 在本地 Rails 中我们通过
+
+(3) 在本地 Rails 中我们通过
 
         rails console
+
 或
 
         rails c
+
 进入 Rails 控制台。
 而我们同时可以通过
 
         heroku run rails console
+
 或
 
         heroku run rails c
