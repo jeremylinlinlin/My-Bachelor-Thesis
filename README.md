@@ -10,10 +10,10 @@
 
 * [toc](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/toc/Table of Contents.md) [Done]
 * [abstract](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/abstract/abstract.md) [Done]
-* [preface](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/preface/preface.md) [缺：研究的基本框架]
+* [preface](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/preface/preface.md) [Done]
 * [chapter-2](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/chapter-2/chapter-2.md) [缺：文献综述]
 * [analysis-and-design](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/analysis-and-design/analysis-and-design.md) [Done]
-* [application-development](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/application-developement/application-developement.md) [Almost Done]
+* [application-development](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/application-developement/application-developement.md) [Done]
 * [security](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/security/security.md) [BLANK]
 * [conclusion](https://github.com/jeremylinlinlin/My-Bachelor-Thesis/blob/conclusion/conclusion.md) [BLANK]
 
